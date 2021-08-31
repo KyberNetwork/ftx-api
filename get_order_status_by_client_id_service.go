@@ -9,12 +9,12 @@ import (
 )
 
 type GetOrderByClientIDStatusService struct {
-	c             *Client
-	clientOrderID string
+	c        *Client
+	clientID string
 }
 
-func (s *GetOrderByClientIDStatusService) ClientOrderID(clientOrderID string) *GetOrderByClientIDStatusService {
-	s.clientOrderID = clientOrderID
+func (s *GetOrderByClientIDStatusService) ClientID(clientID string) *GetOrderByClientIDStatusService {
+	s.clientID = clientID
 	return s
 }
 
@@ -24,7 +24,7 @@ type GetOrderStatusByClientIDResponse struct {
 }
 
 func (s *GetOrderByClientIDStatusService) Do(ctx context.Context) (*Order, error) {
-	r := newRequest(http.MethodPost, endPointWithFormat("/orders/by_client_id/%s", s.clientOrderID), true)
+	r := newRequest(http.MethodPost, endPointWithFormat("/orders/by_client_id/%s", s.clientID), true)
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {
 		return nil, err

@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type WithdrawHService struct {
+type WithdrawService struct {
 	c      *Client
 	params WithdrawParams
 }
@@ -23,7 +23,7 @@ type WithdrawParams struct {
 	Code     *string `json:"code,omitempty"`
 }
 
-func (s *WithdrawHService) Params(params WithdrawParams) *WithdrawHService {
+func (s *WithdrawService) Params(params WithdrawParams) *WithdrawService {
 	s.params = params
 	return s
 }
@@ -33,7 +33,7 @@ type WithdrawResponse struct {
 	Result *Withdraw `json:"result"`
 }
 
-func (s *WithdrawHService) Do(ctx context.Context) (*Withdraw, error) {
+func (s *WithdrawService) Do(ctx context.Context) (*Withdraw, error) {
 	r := newRequest(http.MethodPost, endPointWithFormat("/wallet/withdrawals"), true)
 	body, err := json.Marshal(s.params)
 	if err != nil {

@@ -8,9 +8,9 @@ import (
 )
 
 type ModifyOrderByClientIDService struct {
-	c             *Client
-	clientOrderID string
-	params        ModifyOrderByClientIDParams
+	c        *Client
+	clientID string
+	params   ModifyOrderByClientIDParams
 }
 
 type ModifyOrderByClientIDParams struct {
@@ -18,8 +18,8 @@ type ModifyOrderByClientIDParams struct {
 	Size  *float64 `json:"size,omitempty"`
 }
 
-func (s *ModifyOrderByClientIDService) OrderID(clientOrderID string) *ModifyOrderByClientIDService {
-	s.clientOrderID = clientOrderID
+func (s *ModifyOrderByClientIDService) ClientID(clientID string) *ModifyOrderByClientIDService {
+	s.clientID = clientID
 	return s
 }
 
@@ -34,7 +34,7 @@ type ModifyOrderByClientIDResponse struct {
 }
 
 func (s *ModifyOrderByClientIDService) Do(ctx context.Context) (*Order, error) {
-	r := newRequest(http.MethodPost, endPointWithFormat("/orders/by_client_id/%s/modify", s.clientOrderID), true)
+	r := newRequest(http.MethodPost, endPointWithFormat("/orders/by_client_id/%s/modify", s.clientID), true)
 	body, err := json.Marshal(s.params)
 	if err != nil {
 		return nil, err

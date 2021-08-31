@@ -160,3 +160,28 @@ type TriggerOrder struct {
 	AvgFillPrice     *float64    `json:"avgFillPrice"`
 	RetryUntilFilled bool        `json:"retryUntilFilled"`
 }
+
+type Basket map[string]float64
+
+type PositionsPerShare map[string]float64
+
+type LeveragedToken struct {
+	Name              string            `json:"name"`
+	Description       string            `json:"description"`
+	Underlying        string            `json:"underlying"`
+	Leverage          int               `json:"leverage"`
+	Outstanding       float64           `json:"outstanding"`
+	PricePerShare     float64           `json:"pricePerShare"`
+	PositionPerShare  float64           `json:"positionPerShare"`
+	PositionsPerShare PositionsPerShare `json:"positionsPerShare"`
+	Basket            Basket            `json:"basket"`
+	TargetComponents  []string          `json:"targetComponents"`
+	UnderlyingMark    float64           `json:"underlyingMark"`
+	TotalNav          float64           `json:"totalNav"`
+	TotalCollateral   float64           `json:"totalCollateral"`
+	ContractAddress   string            `json:"contractAddress"`
+	CurrentLeverage   float64           `json:"currentLeverage"`
+	Change1H          float64           `json:"change1h"`
+	Change24H         float64           `json:"change24h"`
+	ChangeBod         float64           `json:"changeBod"`
+}
