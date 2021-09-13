@@ -35,7 +35,7 @@ type DepositAddressResponse struct {
 }
 
 func (s *GetDepositAddressService) Do(ctx context.Context) (*DepositAddress, error) {
-	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/deposit_address/%s", s.coin), false)
+	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/deposit_address/%s", s.coin), true)
 	if s.method != nil {
 		r.setParam("method", *s.method)
 	}

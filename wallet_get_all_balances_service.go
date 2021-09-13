@@ -20,7 +20,7 @@ type AllBalancesResponse struct {
 }
 
 func (s *GetAllBalancesService) Do(ctx context.Context) (AllBalance, error) {
-	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/all_balances"), false)
+	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/all_balances"), true)
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {
 		return nil, err

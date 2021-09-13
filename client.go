@@ -262,11 +262,11 @@ func (c *Client) NewGetDepositAddressService() *GetDepositAddressService {
 	}
 }
 
-// func (c *Client) NewGetDepositAddressService() *GetDepositAddressService {
-// 	return &GetDepositAddressService{
-// 		c: c,
-// 	}
-// }
+func (c *Client) NewGetDepositAddressListService() *GetDepositAddressListService {
+	return &GetDepositAddressListService{
+		c: c,
+	}
+}
 
 func (c *Client) NewGetDepositHistoryService() *GetDepositHistoryService {
 	return &GetDepositHistoryService{

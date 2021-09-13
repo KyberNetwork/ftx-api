@@ -45,7 +45,7 @@ type TradesResponse struct {
 }
 
 func (s *GetTradesService) Do(ctx context.Context) ([]Trade, error) {
-	r := newRequest(http.MethodGet, endPointWithFormat("/markets/%s/trades", s.marketName), true)
+	r := newRequest(http.MethodGet, endPointWithFormat("/markets/%s/trades", s.marketName), false)
 	if s.startTime != nil {
 		r.setParam("start_time", Int64ToString(*s.startTime))
 	}
