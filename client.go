@@ -26,18 +26,22 @@ type Client struct {
 	apiSecret  string
 	baseURL    string
 	httpClient *http.Client
-	subAccount string
+	subAccount *string
 }
 
-func NewClient(apiKey, apiSecret, baseURL, subaccount string, l *zap.SugaredLogger) *Client {
+func NewClient(apiKey, apiSecret, baseURL string, l *zap.SugaredLogger) *Client {
 	return &Client{
 		l:          l,
 		apiKey:     apiKey,
 		apiSecret:  apiSecret,
 		httpClient: http.DefaultClient,
 		baseURL:    baseURL,
-		subAccount: subaccount,
 	}
+}
+
+func (c *Client) SubAccount(subaccount *string) *Client {
+	c.subAccount = subaccount
+	return c
 }
 
 func (c *Client) callAPI(ctx context.Context, r *request) ([]byte, error) {
@@ -101,8 +105,8 @@ func (c *Client) parsedequest(ctx context.Context, r *request) (*http.Request, e
 		req.Header.Set("FTX-TS", nonce)
 		req.Header.Set("FTX-SIGN", c.sign(payload))
 	}
-	if c.subAccount != "" {
-		req.Header.Set("FTX-SUBACCOUNT", c.subAccount)
+	if c.subAccount != nil {
+		req.Header.Set("FTX-SUBACCOUNT", *c.subAccount)
 	}
 	return req, nil
 }
