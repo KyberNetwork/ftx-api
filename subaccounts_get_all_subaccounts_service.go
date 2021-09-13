@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GetSubAccountsService struct {
+type GetAllSubAccountsService struct {
 	c *Client
 }
 
@@ -16,21 +16,21 @@ type SubAccount struct {
 	Nickname    string `json:"nickname"`
 	Deletable   bool   `json:"deletable"`
 	Editable    bool   `json:"editable"`
-	Competition bool   `json:"competition"`
+	Competition *bool  `json:"competition,omitempty"`
 }
 
-type SubAccountsResponse struct {
+type GetAllSubAccountsResponse struct {
 	basicReponse
 	Result []SubAccount `json:"result"`
 }
 
-func (s *GetSubAccountsService) Do(ctx context.Context) ([]SubAccount, error) {
+func (s *GetAllSubAccountsService) Do(ctx context.Context) ([]SubAccount, error) {
 	r := newRequest(http.MethodGet, "/subaccounts", true)
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {
 		return nil, err
 	}
-	var result SubAccountsResponse
+	var result GetAllSubAccountsResponse
 	if err := json.Unmarshal(byteData, &result); err != nil {
 		return nil, err
 	}

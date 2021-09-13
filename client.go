@@ -118,8 +118,32 @@ func (c *Client) sign(payload string) string {
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
-func (c *Client) NewGetSubAccountsService() *GetSubAccountsService {
-	return &GetSubAccountsService{
+func (c *Client) NewGetAllSubAccountsService() *GetAllSubAccountsService {
+	return &GetAllSubAccountsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCreateSubAccountService() *CreateSubAccountService {
+	return &CreateSubAccountService{
+		c: c,
+	}
+}
+
+func (c *Client) NewChangeSubAccountNameService() *ChangeSubAccountNameService {
+	return &ChangeSubAccountNameService{
+		c: c,
+	}
+}
+
+func (c *Client) NewDeleteSubAccountService() *DeleteSubAccountService {
+	return &DeleteSubAccountService{
+		c: c,
+	}
+}
+
+func (c *Client) NewTransferBetweenSubAccountsService() *TransferBetweenSubAccountsService {
+	return &TransferBetweenSubAccountsService{
 		c: c,
 	}
 }
