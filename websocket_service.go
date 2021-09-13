@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	wsEndpoint string = "wss://ftx.com/ws/"
+	WebsocketEndpoint string = "wss://ftx.com/ws/"
 )
 
 type WebsocketService struct {
@@ -23,6 +23,7 @@ type WebsocketService struct {
 	mu                    sync.Mutex
 	apiKey                string
 	apiSecret             string
+	wsEndpoint            string
 	mapSubscriptions      map[Subscription]struct{}
 	mapCheckSubscriptions map[Subscription]struct{}
 	autoReconnect         bool
@@ -34,12 +35,13 @@ type WebsocketService struct {
 	receivePong           chan struct{}
 }
 
-func NewWebsocketService(apiKey, apiSecret string, l *zap.SugaredLogger) *WebsocketService {
+func NewWebsocketService(apiKey, apiSecret, wsEndpoint string, l *zap.SugaredLogger) *WebsocketService {
 	return &WebsocketService{
 		l:                l,
 		mu:               sync.Mutex{},
 		apiKey:           apiKey,
 		apiSecret:        apiSecret,
+		wsEndpoint:       wsEndpoint,
 		mapSubscriptions: make(map[Subscription]struct{}),
 		receivePong:      make(chan struct{}),
 	}
@@ -58,7 +60,7 @@ func (s *WebsocketService) SubAccount(sa string) *WebsocketService {
 
 func (s *WebsocketService) Connect(dataHandler WsDataHandler, errHandler WsErrorHandler) error {
 	l := s.l.With("func", "WebsocketService.Connect")
-	conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, nil)
+	conn, _, err := websocket.DefaultDialer.Dial(s.wsEndpoint, nil)
 	if err != nil {
 		l.Errorw("cannot connect ws", "err", err)
 		return err

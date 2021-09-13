@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	ErrorRateLimit = errors.New("error rate limit")
+	ErrorRateLimit  = errors.New("error rate limit")
+	RestAPIEndpoint = "https://ftx.com/api"
 )
 
 type Client struct {
