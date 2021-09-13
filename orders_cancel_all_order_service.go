@@ -13,10 +13,10 @@ type CancelAllOrderService struct {
 }
 
 type CancelAllOrderParams struct {
-	Market                *string    `json:"market,omitempty"`
-	Side                  *OrderSide `json:"side,omitempty"`
-	ConditionalOrdersOnly *bool      `json:"conditionalOrdersOnly,omitempty"`
-	LimitOrdersOnly       *bool      `json:"limitOrdersOnly,omitempty"`
+	Market                *string `json:"market,omitempty"`
+	Side                  *Side   `json:"side,omitempty"`
+	ConditionalOrdersOnly *bool   `json:"conditionalOrdersOnly,omitempty"`
+	LimitOrdersOnly       *bool   `json:"limitOrdersOnly,omitempty"`
 }
 
 func (s *CancelAllOrderService) Params(params CancelAllOrderParams) *CancelAllOrderService {

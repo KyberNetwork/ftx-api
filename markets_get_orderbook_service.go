@@ -26,12 +26,12 @@ func (s *GetOrderBookService) Depth(depth int) *GetOrderBookService {
 }
 
 type Feed struct {
-	Price  float64
-	Amount float64
+	Price float64 `json:"price"`
+	Size  float64 `json:"size"`
 }
 
 func (f *Feed) UnmarshalJSON(buf []byte) error {
-	tmp := []interface{}{&f.Price, f.Amount}
+	tmp := []interface{}{&f.Price, &f.Size}
 	wantLen := len(tmp)
 	if err := json.Unmarshal(buf, &tmp); err != nil {
 		return err

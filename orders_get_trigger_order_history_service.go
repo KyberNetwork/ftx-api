@@ -12,7 +12,7 @@ type GetTriggerOrderHistoryService struct {
 	c           *Client
 	market      *string
 	triggerType *TriggerType
-	orderSide   *OrderSide
+	orderSide   *Side
 	orderType   *OrderType
 	startTime   *int64
 	endTime     *int64
@@ -28,7 +28,7 @@ func (s *GetTriggerOrderHistoryService) TriggerType(triggerType TriggerType) *Ge
 	return s
 }
 
-func (s *GetTriggerOrderHistoryService) Side(orderSide OrderSide) *GetTriggerOrderHistoryService {
+func (s *GetTriggerOrderHistoryService) Side(orderSide Side) *GetTriggerOrderHistoryService {
 	s.orderSide = &orderSide
 	return s
 }

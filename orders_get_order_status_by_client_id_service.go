@@ -8,12 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GetOrderByClientIDStatusService struct {
+type GetOrderStatusByClientIDService struct {
 	c        *Client
 	clientID string
 }
 
-func (s *GetOrderByClientIDStatusService) ClientID(clientID string) *GetOrderByClientIDStatusService {
+func (s *GetOrderStatusByClientIDService) ClientID(clientID string) *GetOrderStatusByClientIDService {
 	s.clientID = clientID
 	return s
 }
@@ -23,7 +23,7 @@ type GetOrderStatusByClientIDResponse struct {
 	Result *Order `json:"result"`
 }
 
-func (s *GetOrderByClientIDStatusService) Do(ctx context.Context) (*Order, error) {
+func (s *GetOrderStatusByClientIDService) Do(ctx context.Context) (*Order, error) {
 	r := newRequest(http.MethodPost, endPointWithFormat("/orders/by_client_id/%s", s.clientID), true)
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

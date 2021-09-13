@@ -14,7 +14,7 @@ type PlaceOrderService struct {
 
 type PlaceOrderParams struct {
 	Market            string    `json:"market"`
-	Side              OrderSide `json:"side"`
+	Side              Side      `json:"side"`
 	Price             float64   `json:"price"`
 	Type              OrderType `json:"type"`
 	Size              float64   `json:"size"`

@@ -9,11 +9,11 @@ const (
 	OrderTypeMarket OrderType = "market"
 )
 
-type OrderSide string
+type Side string
 
 const (
-	OrderSideBuy  OrderSide = "buy"
-	OrderSideSell OrderSide = "sell"
+	SideBuy  Side = "buy"
+	SideSell Side = "sell"
 )
 
 type OrderStatus string
@@ -27,12 +27,27 @@ const (
 	OrderStatusTriggered OrderStatus = "triggered"
 )
 
+type OptionQuoteStatus string
+
+const (
+	OptionQuoteStatusOpen      OptionQuoteStatus = "open"
+	OptionQuoteStatusFilled    OptionQuoteStatus = "filled"
+	OptionQuoteStatusCancelled OptionQuoteStatus = "cancelled"
+)
+
 type TriggerType string
 
 const (
 	TriggerTypeStop         TriggerType = "stop"
 	TriggerTypeTrailingStop TriggerType = "trailing_stop"
 	TriggerTypeTakeProfit   TriggerType = "take_profit"
+)
+
+type OptionType string
+
+const (
+	OptionTypeCall = "call"
+	OptionTypePut  = "put"
 )
 
 type basicReponse struct {
@@ -130,7 +145,7 @@ type Order struct {
 	Price         float64     `json:"price"`
 	AvgFillPrice  float64     `json:"avgFillPrice"`
 	RemainingSize float64     `json:"remainingSize"`
-	Side          OrderSide   `json:"side"`
+	Side          Side        `json:"side"`
 	Size          float64     `json:"size"`
 	Status        OrderStatus `json:"status"`
 	Type          OrderType   `json:"type"`
@@ -147,7 +162,7 @@ type TriggerOrder struct {
 	Market           string      `json:"market"`
 	OrderPrice       *float64    `json:"orderPrice"`
 	ReduceOnly       bool        `json:"reduceOnly"`
-	Side             OrderSide   `json:"side"`
+	Side             Side        `json:"side"`
 	Size             float64     `json:"size"`
 	Status           OrderStatus `json:"status"`
 	TrailStart       *float64    `json:"trailStart"`
@@ -184,4 +199,25 @@ type LeveragedToken struct {
 	Change1H          float64           `json:"change1h"`
 	Change24H         float64           `json:"change24h"`
 	ChangeBod         float64           `json:"changeBod"`
+}
+
+type Option struct {
+	Underlying string     `json:"underlying"`
+	Type       OptionType `json:"type"`
+	Strike     float64    `json:"strike"`
+	Expiry     time.Time  `json:"expiry"`
+}
+
+type OptionQuote struct {
+	Collateral  float64           `json:"collateral"`
+	ID          int64             `json:"id"`
+	Option      Option            `json:"option"`
+	Price       float64           `json:"price"`
+	QuoteExpiry *string           `json:"quoteExpiry"`
+	QuoterSide  Side              `json:"quoterSide"`
+	RequestID   int64             `json:"requestId"`
+	RequestSide Side              `json:"requestSide"`
+	Size        float64           `json:"size"`
+	Status      OptionQuoteStatus `json:"status"`
+	Time        time.Time         `json:"time"`
 }

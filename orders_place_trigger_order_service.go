@@ -14,7 +14,7 @@ type PlaceTriggerOrderService struct {
 
 type PlaceTriggerOrderParams struct {
 	Market           string      `json:"market"`
-	Side             OrderSide   `json:"side"`
+	Side             Side        `json:"side"`
 	Size             float64     `json:"size"`
 	Type             TriggerType `json:"type"`
 	TrailValue       *float64    `json:"trailValue,omitempty"`

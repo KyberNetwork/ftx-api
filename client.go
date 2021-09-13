@@ -21,20 +21,22 @@ var (
 )
 
 type Client struct {
+	l          *zap.SugaredLogger
 	apiKey     string
 	apiSecret  string
 	baseURL    string
 	httpClient *http.Client
-	l          *zap.SugaredLogger
+	subAccount string
 }
 
-func NewClient(apiKey, apiSecret string, baseURL string, l *zap.SugaredLogger) *Client {
+func NewClient(apiKey, apiSecret, baseURL, subaccount string, l *zap.SugaredLogger) *Client {
 	return &Client{
+		l:          l,
 		apiKey:     apiKey,
 		apiSecret:  apiSecret,
 		httpClient: http.DefaultClient,
 		baseURL:    baseURL,
-		l:          l,
+		subAccount: subaccount,
 	}
 }
 
@@ -98,6 +100,9 @@ func (c *Client) parsedequest(ctx context.Context, r *request) (*http.Request, e
 		req.Header.Set("FTX-KEY", c.apiKey)
 		req.Header.Set("FTX-TS", nonce)
 		req.Header.Set("FTX-SIGN", c.sign(payload))
+	}
+	if c.subAccount != "" {
+		req.Header.Set("FTX-SUBACCOUNT", c.subAccount)
 	}
 	return req, nil
 }
@@ -204,10 +209,374 @@ func (c *Client) NewChangeAccountLeverageService() *ChangeAccountLeverageService
 	}
 }
 
-//
+func (c *Client) NewGetCoinsService() *GetCoinsService {
+	return &GetCoinsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetBalancesService() *GetBalancesService {
+	return &GetBalancesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetAllBalancesService() *GetAllBalancesService {
+	return &GetAllBalancesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetDepositAddressService() *GetDepositAddressService {
+	return &GetDepositAddressService{
+		c: c,
+	}
+}
+
+// func (c *Client) NewGetDepositAddressService() *GetDepositAddressService {
+// 	return &GetDepositAddressService{
+// 		c: c,
+// 	}
+// }
+
+func (c *Client) NewGetDepositHistoryService() *GetDepositHistoryService {
+	return &GetDepositHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetWithdrawHistoryService() *GetWithdrawHistoryService {
+	return &GetWithdrawHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewWithdrawService() *WithdrawService {
+	return &WithdrawService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetAirdropsService() *GetAirdropsService {
+	return &GetAirdropsService{
+		c: c,
+	}
+}
 
 func (c *Client) NewGetWithdrawalFeesService() *GetWithdrawalFeesService {
 	return &GetWithdrawalFeesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetSaveAddressesService() *GetSaveAddressesService {
+	return &GetSaveAddressesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCreateSaveAddressesService() *CreateSaveAddressesService {
+	return &CreateSaveAddressesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewDeleteSaveAddressesService() *DeleteSaveAddressesService {
+	return &DeleteSaveAddressesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOpenOrdersService() *GetOpenOrdersService {
+	return &GetOpenOrdersService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOrderHistoryService() *GetOrderHistoryService {
+	return &GetOrderHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOpenTriggerOrdersService() *GetOpenTriggerOrdersService {
+	return &GetOpenTriggerOrdersService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetTriggerOrderHistoryService() *GetTriggerOrderHistoryService {
+	return &GetTriggerOrderHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewPlaceOrderService() *PlaceOrderService {
+	return &PlaceOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewPlaceTriggerOrderService() *PlaceTriggerOrderService {
+	return &PlaceTriggerOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewModifyOrderService() *ModifyOrderService {
+	return &ModifyOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewModifyOrderByClientIDService() *ModifyOrderByClientIDService {
+	return &ModifyOrderByClientIDService{
+		c: c,
+	}
+}
+
+func (c *Client) NewModifyTriggerOrderService() *ModifyTriggerOrderService {
+	return &ModifyTriggerOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOrderStatusService() *GetOrderStatusService {
+	return &GetOrderStatusService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOrderStatusByClientIDService() *GetOrderStatusByClientIDService {
+	return &GetOrderStatusByClientIDService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelOrderService() *CancelOrderService {
+	return &CancelOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelOrderByClientIDService() *CancelOrderByClientIDService {
+	return &CancelOrderByClientIDService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelTriggerOrderService() *CancelTriggerOrderService {
+	return &CancelTriggerOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelAllOrderService() *CancelAllOrderService {
+	return &CancelAllOrderService{
+		c: c,
+	}
+}
+
+func (c *Client) NewFundingPaymentsService() *FundingPaymentsService {
+	return &FundingPaymentsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewListLeveragedTokensService() *ListLeveragedTokensService {
+	return &ListLeveragedTokensService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLeveragedTokenInfoService() *GetLeveragedTokenInfoService {
+	return &GetLeveragedTokenInfoService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLeveragedTokenBalancesService() *GetLeveragedTokenBalancesService {
+	return &GetLeveragedTokenBalancesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewListLeveragedTokenCreationRequestsService() *ListLeveragedTokenCreationRequestsService {
+	return &ListLeveragedTokenCreationRequestsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewRequestLeveragedTokenCreationService() *RequestLeveragedTokenCreationService {
+	return &RequestLeveragedTokenCreationService{
+		c: c,
+	}
+}
+
+func (c *Client) NewListLeveragedTokenRedemptionRequestsService() *ListLeveragedTokenRedemptionRequestsService {
+	return &ListLeveragedTokenRedemptionRequestsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewRequestLeveragedTokenRedemptionService() *RequestLeveragedTokenRedemptionService {
+	return &RequestLeveragedTokenRedemptionService{
+		c: c,
+	}
+}
+
+func (c *Client) NewRequestETFRebalanceInfoService() *RequestETFRebalanceInfoService {
+	return &RequestETFRebalanceInfoService{
+		c: c,
+	}
+}
+
+func (c *Client) NewListQuoteRequestsService() *ListQuoteRequestsService {
+	return &ListQuoteRequestsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewYourQuoteRequestsService() *YourQuoteRequestsService {
+	return &YourQuoteRequestsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCreateQuoteRequestService() *CreateQuoteRequestService {
+	return &CreateQuoteRequestService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelQuoteRequestService() *CancelQuoteRequestService {
+	return &CancelQuoteRequestService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetQuotesForYourQuoteRequestService() *GetQuotesForYourQuoteRequestService {
+	return &GetQuotesForYourQuoteRequestService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCreateQuoteService() *CreateQuoteService {
+	return &CreateQuoteService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetMyQuotesService() *GetMyQuotesService {
+	return &GetMyQuotesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewCancelQuoteService() *CancelQuoteService {
+	return &CancelQuoteService{
+		c: c,
+	}
+}
+
+func (c *Client) NewAcceptOptionsQuoteService() *AcceptOptionsQuoteService {
+	return &AcceptOptionsQuoteService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetAccountOptionsInfoService() *GetAccountOptionsInfoService {
+	return &GetAccountOptionsInfoService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetPublicOptionsTradesService() *GetPublicOptionsTradesService {
+	return &GetPublicOptionsTradesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGet24HOptionVolumeService() *Get24HOptionVolumeService {
+	return &Get24HOptionVolumeService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetHistorical24HOptionVolumeService() *GetHistorical24HOptionVolumeService {
+	return &GetHistorical24HOptionVolumeService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetOptionOpenInterestService() *GetOptionOpenInterestService {
+	return &GetOptionOpenInterestService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetHistoricalOpenInterestService() *GetHistoricalOpenInterestService {
+	return &GetHistoricalOpenInterestService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLendingHistoryService() *GetLendingHistoryService {
+	return &GetLendingHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetBorrowRatesService() *GetBorrowRatesService {
+	return &GetBorrowRatesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLendingRatesService() *GetLendingRatesService {
+	return &GetLendingRatesService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetDailyBorrowedAmountsService() *GetDailyBorrowedAmountsService {
+	return &GetDailyBorrowedAmountsService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetSpotMarginMarketInfoService() *GetSpotMarginMarketInfoService {
+	return &GetSpotMarginMarketInfoService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetMyBorrowHistoryService() *GetMyBorrowHistoryService {
+	return &GetMyBorrowHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetMyLendingHistoryService() *GetMyLendingHistoryService {
+	return &GetMyLendingHistoryService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLendingOffersService() *GetLendingOffersService {
+	return &GetLendingOffersService{
+		c: c,
+	}
+}
+
+func (c *Client) NewGetLendingInfoService() *GetLendingInfoService {
+	return &GetLendingInfoService{
+		c: c,
+	}
+}
+
+func (c *Client) NewSubmitLendingOfferService() *SubmitLendingOfferService {
+	return &SubmitLendingOfferService{
 		c: c,
 	}
 }
