@@ -83,13 +83,13 @@ func (s *FillsService) Do(ctx context.Context) ([]Fill, error) {
 		r.setParam("order", string(o))
 	}
 	if s.orderID != nil {
-		r.setParam("orderId", Int64ToString(*s.orderID))
+		r.setParam("orderId", int64ToString(*s.orderID))
 	}
 	if s.startTime != nil {
-		r.setParam("start_time", Int64ToString(*s.startTime))
+		r.setParam("start_time", int64ToString(*s.startTime))
 	}
 	if s.endTime != nil {
-		r.setParam("end_time", Int64ToString(*s.endTime))
+		r.setParam("end_time", int64ToString(*s.endTime))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

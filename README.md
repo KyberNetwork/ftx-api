@@ -2,6 +2,9 @@
 
 REST & WebSocket APIs for FTX exchange
 
+[![GoDoc](https://pkg.go.dev/github.com/KyberNetwork/ftx-api?status.svg)](https://pkg.go.dev/github.com/KyberNetwork/ftx-api)
+[![Go Report Card](https://goreportcard.com/badge/github.com/KyberNetwork/ftx-api)](https://goreportcard.com/report/github.com/KyberNetwork/ftx-api)
+
 ## How to use
 
 ```golang
@@ -23,7 +26,7 @@ func main() {
 	zap.ReplaceGlobals(l)
 	sugar = l.Sugar()
 
-	c := ftxapi.NewClient("your api key", "your api secret", ftxapi.RestAPIEndpoint, l.Sugar())
+	c := ftxapi.NewClient("your api key", "your api secret", ftxapi.RestAPIEndpoint, sugar)
 	futureStat, err := c.NewGetFutureStatsService().FutureName("1INCH-PERP").Do(context.Background())
 	if err != nil {
 		sugar.Errorw("err", "err", err)
@@ -49,7 +52,7 @@ func main() {
 	err = c.NewCancelOrderService().OrderID(res.ID).Do(context.Background())
 	sugar.Infow("err cancel order", "err", err)
 
-	s := ftxapi.NewWebsocketService("your api key", "your api secret", ftxapi.WebsocketEndpoint, l.Sugar()).AutoReconnect()
+	s := ftxapi.NewWebsocketService("your api key", "your api secret", ftxapi.WebsocketEndpoint, sugar).AutoReconnect()
 	err = s.Connect(handler, errHandler)
 	if err != nil {
 		sugar.Errorw("err", "err", err)

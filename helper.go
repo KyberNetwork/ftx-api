@@ -2,39 +2,27 @@ package ftxapi
 
 import (
 	"fmt"
-	"time"
+	"strconv"
 )
 
-func timeToTimestampMS(t time.Time) int64 {
-	return t.Unix() * 1000
+func int64ToString(i int64) string {
+	return strconv.FormatInt(i, 10)
 }
 
-func Int64ToString(i int64) string {
-	return fmt.Sprintf("%d", i)
+func intToString(i int) string {
+	return strconv.Itoa(i)
 }
 
-func IntToString(i int) string {
-	return fmt.Sprintf("%d", i)
+func float64ToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-func Float64ToString(f float64) string {
-	return fmt.Sprintf("%f", f)
+func boolToString(b bool) string {
+	return strconv.FormatBool(b)
 }
 
-func BoolToString(b bool) string {
-	return fmt.Sprintf("%v", b)
-}
-
-func IntPointer(i int) *int {
-	return &i
-}
-
-func StringPointer(s string) *string {
+func stringPointer(s string) *string {
 	return &s
-}
-
-func Int64Pointer(i int64) *int64 {
-	return &i
 }
 
 func endPointWithFormat(template string, params ...interface{}) string {

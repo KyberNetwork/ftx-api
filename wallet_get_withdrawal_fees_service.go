@@ -51,7 +51,7 @@ type WithdrawalFeesResponse struct {
 func (s *GetWithdrawalFeesService) Do(ctx context.Context) (*WithdrawalFee, error) {
 	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/withdrawal_fee"), true)
 	r.setParam("coin", s.coin)
-	r.setParam("size", Float64ToString(s.size))
+	r.setParam("size", float64ToString(s.size))
 	r.setParam("address", s.address)
 	if s.tag != nil {
 		r.setParam("tag", *s.tag)

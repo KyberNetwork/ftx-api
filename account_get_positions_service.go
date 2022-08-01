@@ -25,7 +25,7 @@ type PositionsResponse struct {
 func (s *GetPositionsService) Do(ctx context.Context) ([]Position, error) {
 	r := newRequest(http.MethodGet, endPointWithFormat("/account"), true)
 	if s.showAvgPrice != nil {
-		r.setParam("showAvgPrice", BoolToString(*s.showAvgPrice))
+		r.setParam("showAvgPrice", boolToString(*s.showAvgPrice))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

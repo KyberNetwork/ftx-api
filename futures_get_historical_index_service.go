@@ -53,12 +53,12 @@ type HistoricalIndexResponse struct {
 
 func (s *GetHistoricalIndexService) Do(ctx context.Context) ([]HistoricalIndex, error) {
 	r := newRequest(http.MethodGet, endPointWithFormat("/indexes/%s/candles", s.marketName), false)
-	r.setParam("resolution", Int64ToString(s.resolution))
+	r.setParam("resolution", int64ToString(s.resolution))
 	if s.startTime != nil {
-		r.setParam("start_time", Int64ToString(*s.startTime))
+		r.setParam("start_time", int64ToString(*s.startTime))
 	}
 	if s.endTime != nil {
-		r.setParam("end_time", Int64ToString(*s.endTime))
+		r.setParam("end_time", int64ToString(*s.endTime))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

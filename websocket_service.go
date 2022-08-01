@@ -228,7 +228,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 }
 
 func (s *WebsocketService) authenticationRequest() RequestMsg {
-	t := timeToTimestampMS(time.Now())
+	t := time.Now().UnixMilli()
 	mac := hmac.New(sha256.New, []byte(s.apiSecret))
 	mac.Write([]byte(fmt.Sprintf("%dwebsocket_login", t)))
 	signature := hex.EncodeToString(mac.Sum(nil))
@@ -286,7 +286,7 @@ func (s *WebsocketService) Subscribe(sub Subscription) error {
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
 		OP:       "subscribe",
-		Channel:  StringPointer(string(sub.Channel)),
+		Channel:  stringPointer(string(sub.Channel)),
 		Market:   sub.Market,
 		Grouping: sub.Grouping,
 	}); err != nil {
@@ -308,7 +308,7 @@ func (s *WebsocketService) Unsubscribe(sub Subscription) error {
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
 		OP:       "unsubscribe",
-		Channel:  StringPointer(string(sub.Channel)),
+		Channel:  stringPointer(string(sub.Channel)),
 		Market:   sub.Market,
 		Grouping: sub.Grouping,
 	}); err != nil {

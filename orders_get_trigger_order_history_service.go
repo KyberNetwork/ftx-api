@@ -69,10 +69,10 @@ func (s *GetTriggerOrderHistoryService) Do(ctx context.Context) ([]TriggerOrder,
 		r.setParam("orderType", string(*s.orderType))
 	}
 	if s.startTime != nil {
-		r.setParam("start_time", Int64ToString(*s.startTime))
+		r.setParam("start_time", int64ToString(*s.startTime))
 	}
 	if s.endTime != nil {
-		r.setParam("end_time", Int64ToString(*s.endTime))
+		r.setParam("end_time", int64ToString(*s.endTime))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

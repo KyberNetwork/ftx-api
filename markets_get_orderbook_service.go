@@ -55,7 +55,7 @@ type OrderBookResponse struct {
 func (s *GetOrderBookService) Do(ctx context.Context) (OrderBook, error) {
 	r := newRequest(http.MethodGet, endPointWithFormat("/markets/%s/orderbook", s.marketName), false)
 	if s.depth != nil {
-		r.setParam("depth", IntToString(*s.depth))
+		r.setParam("depth", intToString(*s.depth))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {

@@ -94,7 +94,7 @@ func (c *Client) parsedequest(ctx context.Context, r *request) (*http.Request, e
 	}
 	req.URL.RawQuery = query.Encode()
 	if r.needSigned {
-		nonce := fmt.Sprintf("%d", timeToTimestampMS(time.Now().UTC()))
+		nonce := fmt.Sprintf("%d", time.Now().UnixMilli())
 		payload := nonce + req.Method + req.URL.Path
 		if req.URL.RawQuery != "" {
 			payload += "?" + req.URL.RawQuery

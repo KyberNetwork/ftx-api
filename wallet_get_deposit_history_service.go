@@ -46,10 +46,10 @@ type DepositHistoryResponse struct {
 func (s *GetDepositHistoryService) Do(ctx context.Context) ([]DepositHistory, error) {
 	r := newRequest(http.MethodGet, endPointWithFormat("/wallet/deposits"), true)
 	if s.startTime != nil {
-		r.setParam("start_time", Int64ToString(*s.startTime))
+		r.setParam("start_time", int64ToString(*s.startTime))
 	}
 	if s.endTime != nil {
-		r.setParam("end_time", Int64ToString(*s.endTime))
+		r.setParam("end_time", int64ToString(*s.endTime))
 	}
 	byteData, err := s.c.callAPI(ctx, r)
 	if err != nil {
