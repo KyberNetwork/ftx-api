@@ -151,78 +151,86 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelTicker:
 				var event WsTickerEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orderbook data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orderbook data, err = %s", err))
+					l.Errorw("cannot unmarshal ticker event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal ticker event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						Ticker: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					Ticker: &event,
-				})
 			case WsChannelMarkets:
 				var event WsMarketsEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orderbook data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orderbook data, err = %s", err))
+					l.Errorw("cannot unmarshal market event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal market event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						Markets: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					Markets: &event,
-				})
 			case WsChannelTrades:
 				var event WsTradesEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orderbook data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orderbook data, err = %s", err))
+					l.Errorw("cannot unmarshal trade event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal trade event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						Trades: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					Trades: &event,
-				})
 			case WsChannelOrderBook:
 				var event WsOrderBookEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orderbook data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orderbook data, err = %s", err))
+					l.Errorw("cannot unmarshal orderbook event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal orderbook event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						OrderBookEvent: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					OrderBookEvent: &event,
-				})
 			case WsChannelOrderbookGrouped:
 				var event WsGroupedOrderBookEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal grouped orderbook data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal grouped orderbook data, err = %s", err))
+					l.Errorw("cannot unmarshal grouped orderbook event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal grouped orderbook event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						GroupedOrderBookEvent: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					GroupedOrderBookEvent: &event,
-				})
 			case WsChannelFills:
 				var event WsFillsEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal fills data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal fills data, err = %s", err))
+					l.Errorw("cannot unmarshal fills event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal fills event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						Fills: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					Fills: &event,
-				})
 			case WsChannelOrders:
 				var event WsOrdersEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orders data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orders data, err = %s", err))
+					l.Errorw("cannot unmarshal orders event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal orders event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						Orders: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					Orders: &event,
-				})
 			case WsChannelFTXPay:
 				var event WsFTXPayEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal ftx pay data", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal ftx pay data, err = %s", err))
+					l.Errorw("cannot unmarshal ftx pay event", "err", err)
+					errHandler(fmt.Errorf("cannot unmarshal ftx pay event, err = %s", err))
+				} else {
+					dataHandler(WsReponse{
+						FTXPay: &event,
+					})
 				}
-				dataHandler(WsReponse{
-					FTXPay: &event,
-				})
 			}
 		default:
-			l.Infow("not supported type", "type", typeEvent)
+			l.Infow("event type is not supported", "type", typeEvent)
 		}
 	}
 }
@@ -277,11 +285,15 @@ loop:
 	}
 }
 
-func (s *WebsocketService) Subscribe(sub Subscription) error {
+func (s *WebsocketService) isInCheckSub(sub Subscription) bool {
 	s.mu.Lock()
-	mapCheckSub := s.mapCheckSubscriptions
-	s.mu.Unlock()
-	if _, ok := mapCheckSub[sub]; ok {
+	defer s.mu.Unlock()
+	_, ok := s.mapCheckSubscriptions[sub]
+	return ok
+}
+
+func (s *WebsocketService) Subscribe(sub Subscription) error {
+	if s.isInCheckSub(sub) {
 		return nil
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
@@ -300,10 +312,7 @@ func (s *WebsocketService) Subscribe(sub Subscription) error {
 }
 
 func (s *WebsocketService) Unsubscribe(sub Subscription) error {
-	s.mu.Lock()
-	mapCheckSub := s.mapCheckSubscriptions
-	s.mu.Unlock()
-	if _, ok := mapCheckSub[sub]; !ok {
+	if s.isInCheckSub(sub) {
 		return nil
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
