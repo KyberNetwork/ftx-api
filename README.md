@@ -2,7 +2,7 @@
 
 REST & WebSocket APIs for FTX exchange
 
-[![GoDoc](https://pkg.go.dev/github.com/KyberNetwork/ftx-api?status.svg)](https://pkg.go.dev/github.com/KyberNetwork/ftx-api)
+[![GoDoc](https://pkg.go.dev/badge/https:/github.com/KyberNetwork/ftx-api?utm_source=godoc)](https://pkg.go.dev/github.com/KyberNetwork/ftx-api)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KyberNetwork/ftx-api)](https://goreportcard.com/report/github.com/KyberNetwork/ftx-api)
 
 ## How to use
