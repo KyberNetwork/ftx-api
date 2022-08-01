@@ -286,7 +286,7 @@ func (s *WebsocketService) Subscribe(sub Subscription) error {
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
 		OP:       "subscribe",
-		Channel:  stringPointer(string(sub.Channel)),
+		Channel:  StringToPointer(string(sub.Channel)),
 		Market:   sub.Market,
 		Grouping: sub.Grouping,
 	}); err != nil {
@@ -308,7 +308,7 @@ func (s *WebsocketService) Unsubscribe(sub Subscription) error {
 	}
 	if err := s.conn.WriteJSON(RequestMsg{
 		OP:       "unsubscribe",
-		Channel:  stringPointer(string(sub.Channel)),
+		Channel:  StringToPointer(string(sub.Channel)),
 		Market:   sub.Market,
 		Grouping: sub.Grouping,
 	}); err != nil {

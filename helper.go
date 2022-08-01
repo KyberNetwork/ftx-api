@@ -21,7 +21,7 @@ func boolToString(b bool) string {
 	return strconv.FormatBool(b)
 }
 
-func stringPointer(s string) *string {
+func StringToPointer(s string) *string {
 	return &s
 }
 
