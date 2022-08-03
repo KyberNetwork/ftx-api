@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 )
 
 var (
@@ -21,8 +21,11 @@ var (
 	RestAPIEndpoint = "https://ftx.com/api"
 )
 
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
+
 type Client struct {
-	l          *zap.SugaredLogger
 	apiKey     string
 	apiSecret  string
 	baseURL    string
@@ -30,9 +33,8 @@ type Client struct {
 	subAccount *string
 }
 
-func NewClient(apiKey, apiSecret, baseURL string, l *zap.SugaredLogger) *Client {
+func NewClient(apiKey, apiSecret, baseURL string) *Client {
 	return &Client{
-		l:          l,
 		apiKey:     apiKey,
 		apiSecret:  apiSecret,
 		httpClient: http.DefaultClient,
@@ -46,7 +48,7 @@ func (c *Client) SubAccount(subaccount *string) *Client {
 }
 
 func (c *Client) callAPI(ctx context.Context, r *request) ([]byte, error) {
-	req, err := c.parsedequest(ctx, r)
+	req, err := c.parseRequest(ctx, r)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +64,7 @@ func (c *Client) callAPI(ctx context.Context, r *request) ([]byte, error) {
 	if r.httpMethod != http.MethodGet {
 		var rawData interface{}
 		_ = json.Unmarshal(respBody, &rawData)
-		c.l.Debugw("data response", "data", rawData)
+		log.Printf("resp body data %+v\n", rawData)
 	}
 	if resp.StatusCode == 429 {
 		return nil, ErrorRateLimit
@@ -70,7 +72,7 @@ func (c *Client) callAPI(ctx context.Context, r *request) ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		var respData basicReponse
 		if errU := json.Unmarshal(respBody, &respData); errU != nil {
-			c.l.Errorw("cannot unmarshal response data", "err", err)
+			log.Printf("cannot unmarshal body, err = %s", errU)
 		} else {
 			return nil, fmt.Errorf("unexpected status code = %d, error = %s", resp.StatusCode, respData.Error)
 		}
@@ -79,7 +81,7 @@ func (c *Client) callAPI(ctx context.Context, r *request) ([]byte, error) {
 	return respBody, nil
 }
 
-func (c *Client) parsedequest(ctx context.Context, r *request) (*http.Request, error) {
+func (c *Client) parseRequest(ctx context.Context, r *request) (*http.Request, error) {
 	req, err := http.NewRequest(r.httpMethod, fmt.Sprintf("%s/%s", c.baseURL, r.endpoint), bytes.NewBuffer(r.body))
 	if err != nil {
 		return nil, err

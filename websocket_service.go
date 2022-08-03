@@ -6,12 +6,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/websocket"
-	"go.uber.org/zap"
 )
 
 const (
@@ -19,7 +19,6 @@ const (
 )
 
 type WebsocketService struct {
-	l                     *zap.SugaredLogger
 	mu                    sync.Mutex
 	apiKey                string
 	apiSecret             string
@@ -35,9 +34,8 @@ type WebsocketService struct {
 	receivePong           chan struct{}
 }
 
-func NewWebsocketService(apiKey, apiSecret, wsEndpoint string, l *zap.SugaredLogger) *WebsocketService {
+func NewWebsocketService(apiKey, apiSecret, wsEndpoint string) *WebsocketService {
 	return &WebsocketService{
-		l:                l,
 		mu:               sync.Mutex{},
 		apiKey:           apiKey,
 		apiSecret:        apiSecret,
@@ -59,17 +57,16 @@ func (s *WebsocketService) SubAccount(sa string) *WebsocketService {
 }
 
 func (s *WebsocketService) Connect(dataHandler WsDataHandler, errHandler WsErrorHandler) error {
-	l := s.l.With("func", "WebsocketService.Connect")
 	conn, _, err := websocket.DefaultDialer.Dial(s.wsEndpoint, nil)
 	if err != nil {
-		l.Errorw("cannot connect ws", "err", err)
+		log.Printf("failed to connect ws, err = %s\n", err)
 		return err
 	}
 
 	// login
 	if s.apiKey != "" && s.apiSecret != "" {
 		if err := conn.WriteJSON(s.authenticationRequest()); err != nil {
-			l.Errorw("failed to log in", "err", err)
+			log.Printf("failed to write authentication request, err = %s\n", err)
 			return err
 		}
 	}
@@ -84,8 +81,7 @@ func (s *WebsocketService) Connect(dataHandler WsDataHandler, errHandler WsError
 	// subscribe
 	for sub := range s.mapSubscriptions {
 		if err := s.Subscribe(sub); err != nil {
-			l.Errorw("failed to subscribe", "sub channel", sub.Channel,
-				"market", sub.Market, "grouping", sub.Grouping, "err", err)
+			log.Printf("failed to subscribe, channel = %s, market = %v, grouping = %v, err = %s\n", sub.Channel, sub.Market, sub.Grouping, err)
 			return err
 		}
 	}
@@ -102,18 +98,15 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 		close(s.stopPing)
 		close(s.reconnectC)
 	}()
-	l := s.l.With("func", "WebsocketService.handleData")
 	for {
 		_, msg, err := s.conn.ReadMessage()
 		if err != nil {
-			l.Errorw("cannot read msg from ws client", "err", err)
-			errHandler(fmt.Errorf("cannot read msg from ws client, err = %s", err))
+			errHandler(fmt.Errorf("failed to read msg from ws client, err = %s", err))
 			return
 		}
 		j, err := simplejson.NewJson(msg)
 		if err != nil {
-			l.Errorw("cannot read json", "err", err)
-			errHandler(fmt.Errorf("cannot read json, err = %s", err))
+			errHandler(fmt.Errorf("failed to read json, err = %s", err))
 			return
 		}
 
@@ -124,26 +117,24 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 		case "pong":
 			s.receivePong <- struct{}{}
 		case "subscribed":
-			l.Infow("subscribe successfully", "channel", channelEvent, "market", marketEvent)
+			log.Printf("subscribed successfully, channel event = %s, market = %s\n", channelEvent, marketEvent)
 		case "unsubscribed":
-			l.Infow("unsubscribe successfully", "channel", channelEvent, "market", marketEvent)
+			log.Printf("unsubscribed successfully, channel event = %s, market = %s\n", channelEvent, marketEvent)
 		case "error":
 			var er errorResponse
 			if err := json.Unmarshal(msg, &er); err != nil {
-				l.Errorw("cannot unmarshal error data", "err", err)
-				errHandler(fmt.Errorf("cannot unmarshal error data, err = %s", err))
+				errHandler(fmt.Errorf("failed to unmarshal error data, err = %s", err))
 				return
 			}
 			errHandler(fmt.Errorf("error from server, code = %d, msg = %s", er.Code, er.Msg))
 		case "info":
 			var info errorResponse
 			if err := json.Unmarshal(msg, &info); err != nil {
-				l.Errorw("cannot unmarshal info data", "err", err)
-				errHandler(fmt.Errorf("cannot unmarshal info data, err = %s", err))
+				errHandler(fmt.Errorf("failed to unmarshal info data, err = %s", err))
 				return
 			}
 			if info.Code == 20001 {
-				l.Infow("server suggest restart connection", "msg", info.Msg)
+				log.Printf("server suggests to restart the connection msg = %s\n", info.Msg)
 				return
 			}
 		case "partial", "update":
@@ -151,8 +142,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelTicker:
 				var event WsTickerEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal ticker event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal ticker event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal ticker event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						Ticker: &event,
@@ -161,8 +151,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelMarkets:
 				var event WsMarketsEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal market event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal market event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal market event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						Markets: &event,
@@ -171,8 +160,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelTrades:
 				var event WsTradesEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal trade event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal trade event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal trade event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						Trades: &event,
@@ -181,8 +169,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelOrderBook:
 				var event WsOrderBookEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orderbook event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orderbook event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal orderbook event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						OrderBookEvent: &event,
@@ -191,8 +178,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelOrderbookGrouped:
 				var event WsGroupedOrderBookEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal grouped orderbook event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal grouped orderbook event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal grouped orderbook event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						GroupedOrderBookEvent: &event,
@@ -201,8 +187,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelFills:
 				var event WsFillsEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal fills event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal fills event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal fills event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						Fills: &event,
@@ -211,8 +196,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelOrders:
 				var event WsOrdersEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal orders event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal orders event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal orders event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						Orders: &event,
@@ -221,8 +205,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 			case WsChannelFTXPay:
 				var event WsFTXPayEvent
 				if err := json.Unmarshal(msg, &event); err != nil {
-					l.Errorw("cannot unmarshal ftx pay event", "err", err)
-					errHandler(fmt.Errorf("cannot unmarshal ftx pay event, err = %s", err))
+					errHandler(fmt.Errorf("failed to unmarshal ftx pay event, err = %s", err))
 				} else {
 					dataHandler(WsReponse{
 						FTXPay: &event,
@@ -230,7 +213,7 @@ func (s *WebsocketService) handleData(dataHandler WsDataHandler, errHandler WsEr
 				}
 			}
 		default:
-			l.Infow("event type is not supported", "type", typeEvent)
+			log.Printf("event type is not supported, event = %s\n", typeEvent)
 		}
 	}
 }
@@ -331,19 +314,18 @@ func (s *WebsocketService) Unsubscribe(sub Subscription) error {
 }
 
 func (s *WebsocketService) reconnect(dataHandler WsDataHandler, errHandler WsErrorHandler) {
-	l := s.l.With("func", "reconnect")
 	select {
 	case <-s.stopC:
-		l.Infow("connection will be stopped")
+		log.Printf("websocket is closed\n")
 	case <-s.reconnectC:
-		l.Infow("reconnect...")
+		log.Printf("reconnecting...\n")
 		time.Sleep(1 * time.Second)
 		for {
 			if err := s.Connect(dataHandler, errHandler); err != nil {
-				l.Errorw("reconnect: connect error", "err", err)
+				log.Printf("failed to reconnect err = %s\n", err)
 				time.Sleep(5 * time.Second)
 			} else {
-				l.Infow("reconnect successfully")
+				log.Printf("reconnected successfully\n")
 				break
 			}
 		}
