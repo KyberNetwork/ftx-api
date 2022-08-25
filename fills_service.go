@@ -63,7 +63,7 @@ type Fill struct {
 	TradeID       int         `json:"tradeId"`
 	Price         float64     `json:"price"`
 	Side          string      `json:"side"`
-	Size          int         `json:"size"`
+	Size          float64     `json:"size"`
 	Time          time.Time   `json:"time"`
 	Type          string      `json:"type"`
 }

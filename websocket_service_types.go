@@ -102,7 +102,7 @@ type WsFuture struct {
 	MoveStart             interface{} `json:"moveStart"`
 	Name                  string      `json:"name"`
 	Perpetual             bool        `json:"perpetual"`
-	PositionLimitWeight   int         `json:"positionLimitWeight"`
+	PositionLimitWeight   float64     `json:"positionLimitWeight"`
 	PostOnly              bool        `json:"postOnly"`
 	Type                  string      `json:"type"`
 	Underlying            string      `json:"underlying"`
