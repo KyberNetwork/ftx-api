@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	WebsocketEndpoint string = "wss://ftx.com/ws/"
+	websocketEndpoint string = "wss://ftx.com/ws/"
 )
 
 type WebsocketService struct {
@@ -34,20 +34,19 @@ type WebsocketService struct {
 	receivePong           chan struct{}
 }
 
-func NewWebsocketService(apiKey, apiSecret, wsEndpoint string) *WebsocketService {
-	return &WebsocketService{
+func NewWebsocketService(apiKey, apiSecret string, autoReconnect bool) *WebsocketService {
+	s := &WebsocketService{
 		mu:               sync.Mutex{},
 		apiKey:           apiKey,
 		apiSecret:        apiSecret,
-		wsEndpoint:       wsEndpoint,
+		wsEndpoint:       websocketEndpoint,
 		mapSubscriptions: make(map[Subscription]struct{}),
 		receivePong:      make(chan struct{}),
+		autoReconnect:    autoReconnect,
 	}
-}
-
-func (s *WebsocketService) AutoReconnect() *WebsocketService {
-	s.stopC = make(chan struct{})
-	s.autoReconnect = true
+	if autoReconnect {
+		s.stopC = make(chan struct{})
+	}
 	return s
 }
 

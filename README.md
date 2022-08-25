@@ -19,9 +19,10 @@ import (
 )
 
 func main() {
-	c := ftxapi.NewClient("your api key", "your api secret", ftxapi.RestAPIEndpoint)
+	c := ftxapi.NewClient("your api key", "your api secret")
 	futureStat, err := c.NewGetFutureStatsService().FutureName("1INCH-PERP").Do(context.Background())
 	if err != nil {
+		log.Println("error get future stats", err)
 		return
 	}
 	log.Println("future stat", futureStat)
@@ -35,6 +36,7 @@ func main() {
 	}).Do(context.Background())
 
 	if err != nil {
+		log.Println("error place order", err)
 		return
 	}
 
@@ -43,15 +45,15 @@ func main() {
 	err = c.NewCancelOrderService().OrderID(res.ID).Do(context.Background())
 	log.Println("error cancel order", err)
 
-	s := ftxapi.NewWebsocketService("your api key", "your api secret", ftxapi.WebsocketEndpoint).AutoReconnect()
-	err = s.Connect(handler, errHandler)
-	if err != nil {
+	s := ftxapi.NewWebsocketService("your api key", "your api secret", /*autoReconnect*/ true)
+	if err := s.Connect(handler, errHandler); err != nil {
+		log.Println("error connect ws", err)
 		return
 	}
-	err = s.Subscribe(ftxapi.Subscription{
+	if err = s.Subscribe(ftxapi.Subscription{
 		Channel: ftxapi.WsChannelOrders,
-	})
-	if err != nil {
+	}); err != nil {
+		log.Println("error subscribe", err)
 		return
 	}
 	for {
