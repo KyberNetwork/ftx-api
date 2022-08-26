@@ -16,9 +16,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	restAPIEndpoint = "https://ftx.com/api"
+)
+
 var (
-	ErrorRateLimit  = errors.New("error rate limit")
-	RestAPIEndpoint = "https://ftx.com/api"
+	ErrorRateLimit = errors.New("error rate limit")
 )
 
 func init() {
@@ -33,13 +36,25 @@ type Client struct {
 	subAccount *string
 }
 
-func NewClient(apiKey, apiSecret, baseURL string) *Client {
-	return &Client{
+type RestClientOption func(c *Client)
+
+func WithHTTPClient(hc *http.Client) RestClientOption {
+	return func(c *Client) {
+		c.httpClient = hc
+	}
+}
+
+func NewClient(apiKey, apiSecret string, opts ...RestClientOption) *Client {
+	c := &Client{
 		apiKey:     apiKey,
 		apiSecret:  apiSecret,
 		httpClient: http.DefaultClient,
-		baseURL:    baseURL,
+		baseURL:    restAPIEndpoint,
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
 }
 
 func (c *Client) SubAccount(subaccount *string) *Client {
