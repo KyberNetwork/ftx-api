@@ -12,7 +12,7 @@ type GetAllBalancesService struct {
 	c *Client
 }
 
-type AllBalance map[string]Balance
+type AllBalance map[string][]Balance
 
 type AllBalancesResponse struct {
 	basicReponse
